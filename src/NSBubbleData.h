@@ -25,8 +25,6 @@ typedef NS_ENUM(NSInteger, NSBubbleType) {
 
 - (id)initWithUsername:(NSString *)username text:(NSString *)text date:(NSDate *)date type:(NSBubbleType)type;
 + (id)dataWithUsername:(NSString *)username text:(NSString *)text date:(NSDate *)date type:(NSBubbleType)type;
-//- (id)initWithUsername:(NSString *)username image:(UIImage *)image date:(NSDate *)date type:(NSBubbleType)type;
-//+ (id)dataWithUsername:(NSString *)username image:(UIImage *)image date:(NSDate *)date type:(NSBubbleType)type;
 
 - (id)initWithText:(NSString *)text date:(NSDate *)date type:(NSBubbleType)type;
 + (id)dataWithText:(NSString *)text date:(NSDate *)date type:(NSBubbleType)type;

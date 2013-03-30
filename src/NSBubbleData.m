@@ -1,5 +1,5 @@
 //
-//  UIBubbleTableViewCell.m
+//  NSBubbleData.m
 //
 //  Created by Alex Barinov
 //  Project home page: http://alexbarinov.github.com/UIBubbleTableView/
@@ -8,93 +8,157 @@
 //  To view a copy of this license, visit http://creativecommons.org/licenses/by-sa/3.0/
 //
 
-#import "UIBubbleTableViewCell.h"
 #import "NSBubbleData.h"
+#import <QuartzCore/QuartzCore.h>
 
-@interface UIBubbleTableViewCell ()
+@implementation NSBubbleData
 
-@property (nonatomic, retain) UIView *usernameView;
-@property (nonatomic, retain) UIView *customView;
-@property (nonatomic, retain) UIImageView *bubbleImage;
+#pragma mark - Properties
 
-- (void) setupInternalData;
+@synthesize date = _date;
+@synthesize type = _type;
+@synthesize view = _view;
+@synthesize insets = _insets;
 
-@end
-
-@implementation UIBubbleTableViewCell
-
-@synthesize data = _data;
-@synthesize customView = _customView;
-@synthesize bubbleImage = _bubbleImage;
-
-- (void)setFrame:(CGRect)frame
-{
-    [super setFrame:frame];
-    [self setupInternalData];
-}
+#pragma mark - Lifecycle
 
 #if !__has_feature(objc_arc)
-- (void) dealloc
+- (void)dealloc
 {
-    [_data release];
-    _data = nil;
-    [_customView release];
-    _customView = nil;
+    [_date release];
+    _date = nil;
+    [_view release];
+    _view = nil;
+
     [super dealloc];
 }
 #endif
 
+#pragma mark - Text bubble
 
-- (void)setDataInternal:(NSBubbleData *)value
+const UIEdgeInsets textInsetsMine = {5, 10, 11, 17};
+const UIEdgeInsets textInsetsSomeone = {5, 15, 11, 10};
+
++ (id)dataWithUsername:(NSString *)username text:(NSString *)text date:(NSDate *)date type:(NSBubbleType)type
 {
 #if !__has_feature(objc_arc)
-    [value retain];
-    [_data release];
+    return [[[NSBubbleData alloc] initWithUsername:username text:text date:date type:type] autorelease];
+#else
+    return [[NSBubbleData alloc] initWithUsername:username text:text date:date type:type];
 #endif
-    _data = value;
-    [self setupInternalData];
 }
 
-- (void) setupInternalData
++ (id)dataWithText:(NSString *)text date:(NSDate *)date type:(NSBubbleType)type
 {
-    self.selectionStyle = UITableViewCellSelectionStyleNone;
+#if !__has_feature(objc_arc)
+    return [[[NSBubbleData alloc] initWithUsername:nil text:text date:date type:type] autorelease];
+#else
+    return [[NSBubbleData alloc] initWithUsername:nil text:text date:date type:type];
+#endif
+}
 
-    if (!self.bubbleImage)
+- (id)initWithUsername:(NSString *)username text:(NSString *)text date:(NSDate *)date type:(NSBubbleType)type
+{
+    UIFont *font = [UIFont systemFontOfSize:[UIFont systemFontSize]];
+    UIFont *usernameFont = [UIFont systemFontOfSize:14.0];
+    CGSize size = [(text ? text : @"") sizeWithFont:font constrainedToSize:CGSizeMake(220, 9999) lineBreakMode:NSLineBreakByWordWrapping];
+
+    UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, size.width, size.height)];
+    label.numberOfLines = 0;
+    label.lineBreakMode = NSLineBreakByWordWrapping;
+    label.text = (text ? text : @"");
+    label.font = font;
+    label.backgroundColor = [UIColor clearColor];
+
+    UILabel *usernameLabel = nil;
+    if (username) {
+        usernameLabel = [[UILabel alloc] initWithFrame:CGRectMake(10, 0, 300, 20)];
+        usernameLabel.textAlignment = (type == BubbleTypeMine) ? UITextAlignmentRight : UITextAlignmentLeft;
+        usernameLabel.text = username;
+        usernameLabel.textColor = [UIColor colorWithRed:0.157 green:0.306 blue:0.592 alpha:1.000];
+        usernameLabel.font = usernameFont;
+        usernameLabel.backgroundColor = [UIColor clearColor];
+    }
+
+#if !__has_feature(objc_arc)
+    [label autorelease];
+#endif
+
+    UIEdgeInsets insets = (type == BubbleTypeMine ? textInsetsMine : textInsetsSomeone);
+    return [self initWithUsernameView:usernameLabel view:label date:date type:type insets:insets];
+}
+
+#pragma mark - Image bubble
+
+const UIEdgeInsets imageInsetsMine = {11, 13, 16, 22};
+const UIEdgeInsets imageInsetsSomeone = {11, 18, 16, 14};
+
++ (id)dataWithImage:(UIImage *)image date:(NSDate *)date type:(NSBubbleType)type
+{
+#if !__has_feature(objc_arc)
+    return [[[NSBubbleData alloc] initWithImage:image date:date type:type] autorelease];
+#else
+    return [[NSBubbleData alloc] initWithImage:image date:date type:type];
+#endif
+}
+
+- (id)initWithImage:(UIImage *)image date:(NSDate *)date type:(NSBubbleType)type
+{
+    CGSize size = image.size;
+    if (size.width > 220)
     {
-        self.bubbleImage = [[UIImageView alloc] init];
-        [self addSubview:self.bubbleImage];
+        size.height /= (size.width / 220);
+        size.width = 220;
     }
 
-    NSBubbleType type = self.data.type;
+    UIImageView *imageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, size.width, size.height)];
+    imageView.image = image;
+    imageView.layer.cornerRadius = 5.0;
+    imageView.layer.masksToBounds = YES;
 
-    CGFloat width = self.data.view.frame.size.width;
-    CGFloat height = self.data.view.frame.size.height;
 
-    CGFloat x = (type == BubbleTypeSomeoneElse) ? 0 : self.frame.size.width - width - self.data.insets.left - self.data.insets.right;
-    CGFloat y = 0;
+#if !__has_feature(objc_arc)
+    [imageView autorelease];
+#endif
 
-    [self.usernameView removeFromSuperview];
-    [self.customView removeFromSuperview];
-    self.customView = self.data.view;
-    self.usernameView = self.data.usernameView;
+    UIEdgeInsets insets = (type == BubbleTypeMine ? imageInsetsMine : imageInsetsSomeone);
+    return [self initWithView:imageView date:date type:type insets:insets];
+}
 
-    self.customView.frame = CGRectMake(x + self.data.insets.left,
-                                       y + self.data.insets.top + self.usernameView.frame.size.height,
-                                       width, height);
+#pragma mark - Custom view bubble
 
-    [self.contentView addSubview:self.data.usernameView];
-    [self.contentView addSubview:self.customView];
++ (id)dataWithView:(UIView *)view date:(NSDate *)date type:(NSBubbleType)type insets:(UIEdgeInsets)insets
+{
+#if !__has_feature(objc_arc)
+    return [[[NSBubbleData alloc] initWithView:view date:date type:type insets:insets] autorelease];
+#else
+    return [[NSBubbleData alloc] initWithView:view date:date type:type insets:insets];
+#endif
+}
 
-    if (type == BubbleTypeSomeoneElse) {
-        self.bubbleImage.image = [[UIImage imageNamed:@"bubbleSomeone.png"] stretchableImageWithLeftCapWidth:21 topCapHeight:14];
-    } else {
-        self.bubbleImage.image = [[UIImage imageNamed:@"bubbleMine.png"] stretchableImageWithLeftCapWidth:15 topCapHeight:14];
+- (id)initWithView:(UIView *)view date:(NSDate *)date type:(NSBubbleType)type insets:(UIEdgeInsets)insets
+{
+    return [self initWithUsernameView:nil view:view date:date type:type insets:insets];
+}
+
+- (id)initWithUsernameView:(UIView *)usernameView view:(UIView *)view date:(NSDate *)date type:(NSBubbleType)type insets:(UIEdgeInsets)insets
+{
+    self = [super init];
+    if (self)
+    {
+#if !__has_feature(objc_arc)
+        _usernameView = usernameView ? [usernameView retain] : nil;
+        _view = [view retain];
+        _date = [date retain];
+#else
+        _usernameVew = usernameView;
+        _view = view;
+        _date = date;
+#endif
+        _type = type;
+        _insets = insets;
     }
-
-    self.bubbleImage.frame = CGRectMake(x,
-                                        y + self.usernameView.frame.size.height,
-                                        width + self.data.insets.left + self.data.insets.right,
-                                        height + self.data.insets.top + self.data.insets.bottom);
+    return self;
 }
 
 @end

@@ -78,8 +78,8 @@
 - (void)dealloc
 {
     [_bubbleSection release];
-	_bubbleSection = nil;
-	_bubbleDataSource = nil;
+    _bubbleSection = nil;
+    _bubbleDataSource = nil;
     [super dealloc];
 }
 #endif
@@ -92,7 +92,7 @@
     self.showsHorizontalScrollIndicator = NO;
     
     // Cleaning up
-	self.bubbleSection = nil;
+    self.bubbleSection = nil;
     
     // Loading new data
     int count = 0;
@@ -164,7 +164,7 @@
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
     // This is for now typing bubble
-	if (section >= [self.bubbleSection count]) return 1;
+    if (section >= [self.bubbleSection count]) return 1;
     
     return [[self.bubbleSection objectAtIndex:section] count] + 1;
 }
@@ -172,7 +172,7 @@
 - (float)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     // Now typing
-	if (indexPath.section >= [self.bubbleSection count])
+    if (indexPath.section >= [self.bubbleSection count])
     {
         return MAX([UIBubbleTypingTableViewCell height], self.showAvatars ? 52 : 0);
     }
@@ -184,13 +184,13 @@
     }
     
     NSBubbleData *data = [[self.bubbleSection objectAtIndex:indexPath.section] objectAtIndex:indexPath.row - 1];
-    return MAX(data.insets.top + data.view.frame.size.height + data.insets.bottom, self.showAvatars ? 52 : 0);
+    return MAX(data.insets.top + data.view.frame.size.height + data.usernameView.frame.size.height + data.insets.bottom, self.showAvatars ? 52 : 0);
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     // Now typing
-	if (indexPath.section >= [self.bubbleSection count])
+    if (indexPath.section >= [self.bubbleSection count])
     {
         static NSString *cellId = @"tblBubbleTypingCell";
         UIBubbleTypingTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:cellId];
