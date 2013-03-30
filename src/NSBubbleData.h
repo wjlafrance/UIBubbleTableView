@@ -10,24 +10,32 @@
 
 #import <Foundation/Foundation.h>
 
-typedef enum _NSBubbleType
-{
+typedef NS_ENUM(NSInteger, NSBubbleType) {
     BubbleTypeMine = 0,
     BubbleTypeSomeoneElse = 1
-} NSBubbleType;
+};
 
 @interface NSBubbleData : NSObject
 
 @property (readonly, nonatomic, strong) NSDate *date;
 @property (readonly, nonatomic) NSBubbleType type;
 @property (readonly, nonatomic, strong) UIView *view;
+@property (readonly, nonatomic, strong) UIView *usernameView;
 @property (readonly, nonatomic) UIEdgeInsets insets;
-@property (nonatomic, strong) UIImage *avatar;
+
+- (id)initWithUsername:(NSString *)username text:(NSString *)text date:(NSDate *)date type:(NSBubbleType)type;
++ (id)dataWithUsername:(NSString *)username text:(NSString *)text date:(NSDate *)date type:(NSBubbleType)type;
+//- (id)initWithUsername:(NSString *)username image:(UIImage *)image date:(NSDate *)date type:(NSBubbleType)type;
+//+ (id)dataWithUsername:(NSString *)username image:(UIImage *)image date:(NSDate *)date type:(NSBubbleType)type;
 
 - (id)initWithText:(NSString *)text date:(NSDate *)date type:(NSBubbleType)type;
 + (id)dataWithText:(NSString *)text date:(NSDate *)date type:(NSBubbleType)type;
 - (id)initWithImage:(UIImage *)image date:(NSDate *)date type:(NSBubbleType)type;
 + (id)dataWithImage:(UIImage *)image date:(NSDate *)date type:(NSBubbleType)type;
+
+- (id)initWithUsernameView:(UIView *)usernameView view:(UIView *)view date:(NSDate *)date type:(NSBubbleType)type insets:(UIEdgeInsets)insets;
++ (id)dataWithUsernameView:(UIView *)usernameView view:(UIView *)view date:(NSDate *)date type:(NSBubbleType)type insets:(UIEdgeInsets)insets;
+
 - (id)initWithView:(UIView *)view date:(NSDate *)date type:(NSBubbleType)type insets:(UIEdgeInsets)insets;
 + (id)dataWithView:(UIView *)view date:(NSDate *)date type:(NSBubbleType)type insets:(UIEdgeInsets)insets;
 
